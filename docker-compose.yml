@@ -19,7 +19,11 @@ services:
       - "3306:3306"
     networks:
       - app_network
-
+healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot1234"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
   backend:
     build:
       context: ./Back_EVAL2
@@ -36,7 +40,8 @@ services:
     ports:
       - "3000:3000"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     networks:
       - app_network
 
