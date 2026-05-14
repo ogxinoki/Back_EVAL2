@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+
+  db:
+    image: mysql:8.0
+    container_name: mysql_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root1234
+      MYSQL_DATABASE: proyecto_db
+      MYSQL_USER: student
+      MYSQL_PASSWORD: student1234
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./Data_Eval2/01_creacion_base_datos.sql:/docker-entrypoint-initdb.d/01_creacion_base_datos.sql
+      - ./Data_Eval2/02_backup_y_mantenimiento.sql:/docker-entrypoint-initdb.d/02_backup_y_mantenimiento.sql
+    ports:
+      - "3306:3306"
+    networks:
+      - app_network
+
+  backend:
+    build:
+      context: ./Back_EVAL2
+      dockerfile: Dockerfile
+    container_name: backend_app
+    restart: always
+    environment:
+      PORT: 3000
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_NAME: proyecto_db
+      DB_USER: student
+      DB_PASSWORD: student1234
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+    networks:
+      - app_network
+
+  frontend:
+    build:
+      context: ./Front_Eval2
+      dockerfile: Dockerfile
+    container_name: frontend_app
+    restart: always
+    environment:
+      PORT: 5000
+      DEBUG: "False"
+      BACKEND_URL: http://backend:3000
+      SECRET_KEY: clave_secreta_muy_segura_aqui
+    ports:
+      - "5000:5000"
+    depends_on:
+      - backend
+    networks:
+      - app_network
+
+volumes:
+  db_data:
+    driver: local
+
+networks:
+  app_network:
+    driver: bridge
