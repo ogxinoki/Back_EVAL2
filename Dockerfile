@@ -1,4 +1,4 @@
-# ETAPA 1: Construcción
+ # ETAPA 1: Construcción
 FROM node:18-slim AS builder
 WORKDIR /app
 COPY package.json ./
@@ -12,12 +12,12 @@ WORKDIR /app
 RUN useradd -m student
 USER student
 
-# Copiamos los módulos y tu código server.js
+# Copiamos los módulos y el código
 COPY --from=builder /app/node_modules ./node_modules
 COPY . .
 
-# Puerto típico de Node, ajústalo si tu server.js usa otro
-EXPOSE 8000
+# Puerto correcto
+EXPOSE 3000
 
-# Comando para iniciar tu backend
+# Comando para iniciar el backend
 CMD ["node", "server.js"]
